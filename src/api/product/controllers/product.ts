@@ -10,6 +10,7 @@ export default factories.createCoreController(
   ({ strapi }) => ({
     async filterFind(ctx) {
       const contentType = strapi.contentType("api::product.product");
+
       const category = ctx.request.params.category;
       const subcategory = ctx.request.params.subcategory;
 
@@ -28,11 +29,13 @@ export default factories.createCoreController(
         }
       );
 
-      if (!products) {
-        return ctx.response.status(404).message("No products found");
+      if (!products || products.length === 0) {
+        const status = (ctx.response.status = 400);
+        const message = (ctx.response.message = "No products found, invalid request");
+        return { status, message };
       }
 
-      const sanatizedProducts = sanitize.contentAPI.output(
+      const sanatizedProducts = await sanitize.contentAPI.output(
         products,
         contentType
       );
