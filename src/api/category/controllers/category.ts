@@ -26,15 +26,20 @@ export default factories.createCoreController(
       }
 
       const data = entries.map((category) => {
+        const uniqueSubcategoryTitles = new Set();
+
         return {
-          category: category.title,
-          subcategories: [
-            ...new Set(
-              category.products
-                .flatMap((product) => product.subcategories)
-                .map((subcategory) => subcategory.title)
-            ),
-          ],
+          title: category.title,
+          subcategories: category.products
+            .flatMap((product) => product.subcategories)
+            .map(({ title }) => {
+              if (!uniqueSubcategoryTitles.has(title)) {
+                uniqueSubcategoryTitles.add(title);
+                return { title };
+              }
+              return null
+            })
+            .filter(Boolean),
         };
       });
 
