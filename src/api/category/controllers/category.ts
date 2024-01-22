@@ -39,7 +39,7 @@ export default factories.createCoreController(
                 uniqueSubcategoryTitles.add(title);
                 return { id, title, slug };
               }
-              return null
+              return null;
             })
             .filter(Boolean),
         };
