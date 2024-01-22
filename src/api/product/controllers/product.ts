@@ -9,11 +9,13 @@ export default factories.createCoreController(
   "api::product.product",
   ({ strapi }) => ({
     async singleFilter(ctx) {
+      // context
       const contentType = strapi.contentType("api::product.product");
       const category = ctx.request.params.category;
       const page = ctx.request.query.page || 1;
       const pageSize = ctx.request.query.pageSize || 25;
 
+      // find filtered products
       const products = await strapi.entityService.findMany(
         "api::product.product",
         {
@@ -32,10 +34,34 @@ export default factories.createCoreController(
         });
       }
 
+      // transform data
+      const transformedData = products.map((item) => {
+        const { id, ...newImg } = item.img;
+
+        return {
+          id: item.id,
+          attributes: {
+            title: item.title,
+            slug: item.slug,
+            price: item.price,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            publishedAt: item.publishedAt,
+            img: {
+              data: {
+                id: item.img.id,
+                attributes: newImg,
+              },
+            },
+          },
+        };
+      });
+
+      // metadata
       const startIndex = (page - 1) * pageSize;
       const endIndex = page * pageSize;
 
-      const paginatedProducts = products.slice(startIndex, endIndex);
+      const paginatedProducts = transformedData.slice(startIndex, endIndex);
 
       const pageCount = Math.ceil(products.length / pageSize);
 
@@ -48,6 +74,7 @@ export default factories.createCoreController(
         },
       };
 
+      // sanatize data
       const sanatizedProducts = await sanitize.contentAPI.output(
         paginatedProducts,
         contentType
@@ -60,12 +87,14 @@ export default factories.createCoreController(
     },
 
     async doubleFilter(ctx) {
+      // context
       const contentType = strapi.contentType("api::product.product");
       const category = ctx.request.params.category;
       const subcategory = ctx.request.params.subcategory;
       const page = ctx.request.query.page || 1;
       const pageSize = ctx.request.query.pageSize || 25;
 
+      // find filtered products
       const products = await strapi.entityService.findMany(
         "api::product.product",
         {
@@ -88,10 +117,34 @@ export default factories.createCoreController(
         });
       }
 
+      // transform data
+      const transformedData = products.map((item) => {
+        const { id, ...imgData } = item.img;
+
+        return {
+          id: item.id,
+          attributes: {
+            title: item.title,
+            slug: item.slug,
+            price: item.price,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            publishedAt: item.publishedAt,
+            img: {
+              data: {
+                id: item.img.id,
+                attributes: imgData,
+              },
+            },
+          },
+        };
+      });
+
+      // metadata
       const startIndex = (page - 1) * pageSize;
       const endIndex = page * pageSize;
 
-      const paginatedProducts = products.slice(startIndex, endIndex);
+      const paginatedProducts = transformedData.slice(startIndex, endIndex);
 
       const pageCount = Math.ceil(products.length / pageSize);
 
@@ -104,6 +157,7 @@ export default factories.createCoreController(
         },
       };
 
+      // sanatize data
       const sanatizedProducts = await sanitize.contentAPI.output(
         paginatedProducts,
         contentType
