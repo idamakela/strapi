@@ -2,7 +2,7 @@ export default {
   routes: [
     {
       method: "GET",
-      path: "/products/:category/:subcategory",
+      path: "/products/custom/:category/:subcategory",
       handler: "product.doubleFilter",
       config: {
         auth: false,
@@ -10,7 +10,7 @@ export default {
     },
     {
       method: "GET",
-      path: "/products/:category",
+      path: "/products/custom/:category",
       handler: "product.singleFilter",
       config: {
         auth: false,
